@@ -15,13 +15,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.asprog.hotword.data.entity.Player
 import com.asprog.hotword.data.sample.PlayerName
-import com.asprog.hotword.interfaces.Navigation
+import com.asprog.hotword.data.viewModel.GameEvent
+import com.asprog.hotword.data.viewModel.GameUiState
 import com.asprog.hotword.navigation.controller.NavRouts
-import com.asprog.hotword.navigation.game.data.GameViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FinishGameScreen(
+    uiState: GameUiState,
+    events: (GameEvent) -> Unit,
     navigate: (NavRouts) -> Unit
 ) {
     val players = remember { mutableStateListOf<Player>() }

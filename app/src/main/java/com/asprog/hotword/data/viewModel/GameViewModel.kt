@@ -1,12 +1,12 @@
-package com.asprog.hotword.navigation.game.data
+package com.asprog.hotword.data.viewModel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.asprog.hotword.data.entity.Player
+import com.asprog.hotword.data.interfaces.Event
+import com.asprog.hotword.data.repository.GameRepository
 import com.asprog.hotword.data.sample.Const.TAG
 import com.asprog.hotword.data.sample.Const.second
-import com.asprog.hotword.interfaces.Event
-import com.asprog.hotword.navigation.game.data.repository.GameRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -20,16 +20,26 @@ import javax.inject.Inject
 
 sealed interface GameEvent : Event {
     sealed interface CreateScreen : GameEvent {
-        data object Init: CreateScreen
+        data object Init : CreateScreen
         data class SetTimeRound(val minTime: Int, val maxTime: Int) : CreateScreen
         data class SetPersons(val newListPlayers: List<Player>) : CreateScreen
         data class SetMaxRounds(val maxRounds: Int) : CreateScreen
-
-        data object  OpenStartScreen: CreateScreen
     }
-    sealed interface StartGame: GameEvent {
-        data object Init: StartGame
-        data object RunRound: StartGame
+
+    sealed interface StartGame : GameEvent {
+        data object Init : StartGame
+    }
+
+    sealed interface RunGame : GameEvent {
+        data object Init : RunGame
+    }
+
+    sealed interface EndGame : GameEvent {
+        data object Init : EndGame
+    }
+
+    sealed interface FinishGame : GameEvent {
+        data object Init : FinishGame
     }
 }
 
@@ -63,20 +73,32 @@ class GameViewModel @Inject constructor(
                     is GameEvent.CreateScreen.SetTimeRound -> {
                         setTimeRound(Pair(event.minTime, event.maxTime))
                     }
-                    GameEvent.CreateScreen.OpenStartScreen -> {
-                        startGameScreen()
-                    }
                 }
             }
 
             is GameEvent.StartGame -> {
                 when (event) {
                     GameEvent.StartGame.Init -> {
-                        //TODO
+                        startGameScreen()
                     }
-                    GameEvent.StartGame.RunRound -> {
-                        runGameScreen()
-                    }
+                }
+            }
+
+            is GameEvent.EndGame -> {
+                when (event) {
+                    GameEvent.EndGame.Init -> TODO()
+                }
+            }
+
+            is GameEvent.FinishGame -> {
+                when (event) {
+                    GameEvent.FinishGame.Init -> TODO()
+                }
+            }
+
+            is GameEvent.RunGame -> {
+                when (event) {
+                    GameEvent.RunGame.Init -> TODO()
                 }
             }
         }

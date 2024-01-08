@@ -1,4 +1,4 @@
-package com.asprog.hotword.di.preferences
+package com.asprog.hotword.data.preferences
 
 
 import android.content.SharedPreferences

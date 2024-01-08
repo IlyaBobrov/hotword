@@ -3,10 +3,10 @@ package com.asprog.hotword.di
 
 import android.app.Application
 import android.content.Context
-import com.asprog.hotword.di.preferences.PreferencesStorage
-import com.asprog.hotword.di.preferences.PreferencesStorageImpl
-import com.asprog.hotword.navigation.game.data.repository.GameRepository
-import com.asprog.hotword.navigation.game.data.repository.GameRepositoryImpl
+import com.asprog.hotword.data.preferences.PreferencesStorage
+import com.asprog.hotword.data.preferences.PreferencesStorageImpl
+import com.asprog.hotword.data.repository.GameRepository
+import com.asprog.hotword.data.repository.GameRepositoryImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

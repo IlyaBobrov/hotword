@@ -1,4 +1,4 @@
-package com.asprog.hotword.navigation.game.data
+package com.asprog.hotword.data.viewModel
 
 import com.asprog.hotword.data.entity.Player
 import com.asprog.hotword.data.sample.Const

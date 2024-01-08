@@ -1,6 +1,6 @@
-package com.asprog.hotword.navigation.game.data.repository
+package com.asprog.hotword.data.repository
 
-import com.asprog.hotword.di.preferences.PreferencesStorage
+import com.asprog.hotword.data.preferences.PreferencesStorage
 import javax.inject.Inject
 
 class GameRepositoryImpl @Inject constructor(

@@ -1,6 +1,6 @@
 package com.asprog.hotword.navigation.controller
 
-import com.asprog.hotword.interfaces.Navigation
+import com.asprog.hotword.data.interfaces.Navigation
 
 sealed interface NavRouts : Navigation {
     sealed interface FromSettings : NavRouts {

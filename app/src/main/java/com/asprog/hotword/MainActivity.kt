@@ -14,12 +14,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navigation
 import com.asprog.hotword.data.entity.Screen
+import com.asprog.hotword.data.viewModel.GameEvent
+import com.asprog.hotword.data.viewModel.GameViewModel
 import com.asprog.hotword.navigation.controller.NavRouts
 import com.asprog.hotword.navigation.controller.globalNavigationGraph
 import com.asprog.hotword.navigation.game.createGame.CreateGameScreen
-import com.asprog.hotword.navigation.game.data.GameEvent
-import com.asprog.hotword.navigation.game.data.GameUiState
-import com.asprog.hotword.navigation.game.data.GameViewModel
 import com.asprog.hotword.navigation.game.endGame.EndGameScreen
 import com.asprog.hotword.navigation.game.finishGame.FinishGameScreen
 import com.asprog.hotword.navigation.game.runGame.RunGameScreen
@@ -110,16 +109,40 @@ fun NavGraphBuilder.playNavGraph(
             )
         }
         composable(route = Screen.StartGameRound.route) {
-            StartGameScreen(navigate = navigate)
+            val uiState by viewModel.uiState.collectAsState()
+
+            StartGameScreen(
+                uiState = uiState,
+                events = events,
+                navigate = navigate
+            )
         }
         composable(route = Screen.GameRound.route) {
-            RunGameScreen(navigate = navigate)
+            val uiState by viewModel.uiState.collectAsState()
+
+            RunGameScreen(
+                uiState = uiState,
+                events = events,
+                navigate = navigate
+            )
         }
         composable(route = Screen.EndGameRound.route) {
-            EndGameScreen(navigate = navigate)
+            val uiState by viewModel.uiState.collectAsState()
+
+            EndGameScreen(
+                uiState = uiState,
+                events = events,
+                navigate = navigate
+            )
         }
         composable(route = Screen.FinishGame.route) {
-            FinishGameScreen(navigate = navigate)
+            val uiState by viewModel.uiState.collectAsState()
+
+            FinishGameScreen(
+                uiState = uiState,
+                events = events,
+                navigate = navigate
+            )
         }
     }
 }

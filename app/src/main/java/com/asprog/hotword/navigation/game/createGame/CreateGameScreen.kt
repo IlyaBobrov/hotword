@@ -25,9 +25,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.asprog.hotword.data.entity.Player
 import com.asprog.hotword.data.sample.PlayerName
+import com.asprog.hotword.data.viewModel.GameEvent
+import com.asprog.hotword.data.viewModel.GameUiState
 import com.asprog.hotword.navigation.controller.NavRouts
-import com.asprog.hotword.navigation.game.data.GameEvent
-import com.asprog.hotword.navigation.game.data.GameUiState
 import com.asprog.hotword.ui.components.buttons.IconButtonNavigateBack
 
 @OptIn(ExperimentalMaterial3Api::class)
