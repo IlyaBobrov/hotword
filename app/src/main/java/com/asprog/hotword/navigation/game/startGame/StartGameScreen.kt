@@ -1,6 +1,5 @@
-package com.asprog.hotword.navigation.lobby
+package com.asprog.hotword.navigation.game.startGame
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -10,36 +9,33 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.asprog.hotword.R
 import com.asprog.hotword.navigation.controller.NavRouts
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LobbyScreen(
+fun StartGameScreen(
     navigate: (NavRouts) -> Unit
 ) {
-    val createGame = { navigate(NavRouts.FromLobby.ToCreateGame) }
+
+    val runGame: () -> Unit = {
+        navigate(NavRouts.FromStartGame.ToRunGame)
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
+        topBar = {
+            TopAppBar(title = { Text(text = "Подготвка к игре") })
+        }
     ) { paddings ->
         Column(
             modifier = Modifier
                 .padding(paddings)
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+                .fillMaxSize()
+                .padding(16.dp),
         ) {
-            Text(
-                text = stringResource(id = R.string.app_name),
-                modifier = Modifier.padding(vertical = 32.dp),
-                fontSize = 24.sp
-            )
-            Button(onClick = createGame) {
+            Button(onClick = runGame) {
                 Text(text = "Начать игру")
             }
         }

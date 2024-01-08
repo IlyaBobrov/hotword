@@ -9,53 +9,85 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import com.asprog.hotword.data.entity.Player
-import com.asprog.hotword.data.entity.Screen
 import com.asprog.hotword.data.sample.PlayerName
-import com.asprog.hotword.interfaces.Navigation
+import com.asprog.hotword.navigation.controller.NavRouts
+import com.asprog.hotword.navigation.game.data.GameEvent
+import com.asprog.hotword.navigation.game.data.GameUiState
+import com.asprog.hotword.ui.components.buttons.IconButtonNavigateBack
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateGameScreen(
-    callback: (CreateGameNavigation) -> Unit
+    uiState: GameUiState,
+    events: (GameEvent) -> Unit,
+    navigate: (NavRouts) -> Unit
 ) {
-    val players = remember { mutableStateListOf<Player>() }
+    val players = uiState.players
 
     val addPlayer: () -> Unit = {
-        val id = players.size
+        val playersNew = players.toMutableList()
+        val id = playersNew.size
         val name = PlayerName.listNames[id % PlayerName.listNames.size]
         val player = Player(id, name)
-        players.add(player)
+        playersNew.add(player)
+
+        events(GameEvent.CreateScreen.SetPersons(playersNew))
     }
 
-    LaunchedEffect(Unit) {
-        addPlayer()
-        addPlayer()
+    val removePlayer: (player: Player) -> Unit = { player: Player ->
+        val playersNew = players.toMutableList()
+        playersNew.remove(player)
+
+        events(GameEvent.CreateScreen.SetPersons(playersNew))
     }
 
     val startGame: () -> Unit = {
-        callback(CreateGameNavigation.StartRound)
+        navigate(NavRouts.FromCreateGame.ToStartGame)
+    }
+
+    val settingsGame: () -> Unit = {
+        navigate(NavRouts.FromCreateGame.ToSettings)
+    }
+
+    val toLobby: () -> Unit = {
+        navigate(NavRouts.FromCreateGame.ToLobby)
+    }
+
+    LaunchedEffect(Unit) {
+        events(GameEvent.CreateScreen.Init)
     }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
-            TopAppBar(title = { Text(text = "Подготвка к игре") })
+            TopAppBar(
+                title = { Text(text = "Подготвка к игре") },
+                navigationIcon = { IconButtonNavigateBack(toLobby) },
+                actions = {
+                    IconButton(onClick = settingsGame) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            tint = MaterialTheme.colorScheme.onPrimary,
+                            contentDescription = "Settings"
+                        )
+                    }
+                }
+            )
         }
     ) { paddings ->
         Column(
@@ -68,7 +100,7 @@ fun CreateGameScreen(
 
             players.forEach { player ->
                 ItemPlayer(playerData = player) {
-                    players.remove(player)
+                    removePlayer(player)
                 }
             }
             Button(onClick = addPlayer) {
@@ -98,21 +130,6 @@ fun ItemPlayer(
         Text(text = playerData.name)
         IconButton(onClick = { removeAction() }) {
             Icon(imageVector = Icons.Default.Close, contentDescription = "Удалить")
-        }
-    }
-}
-
-sealed interface CreateGameNavigation : Navigation {
-    data object StartRound : CreateGameNavigation
-}
-
-fun createGameNavigationAction(
-    navigator: CreateGameNavigation,
-    navController: NavHostController
-) {
-    when (navigator) {
-        CreateGameNavigation.StartRound -> {
-            navController.navigate(Screen.StartGameRound.route)
         }
     }
 }

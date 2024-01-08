@@ -123,4 +123,6 @@ dependencies {
 
 
 
+    //Security
+    implementation("androidx.security:security-crypto-ktx:1.1.0-alpha06")
 }

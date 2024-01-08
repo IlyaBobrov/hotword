@@ -4,6 +4,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -11,23 +14,28 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navigation
 import com.asprog.hotword.data.entity.Screen
+import com.asprog.hotword.navigation.controller.NavRouts
+import com.asprog.hotword.navigation.controller.globalNavigationGraph
 import com.asprog.hotword.navigation.game.createGame.CreateGameScreen
-import com.asprog.hotword.navigation.game.createGame.createGameNavigationAction
+import com.asprog.hotword.navigation.game.data.GameEvent
+import com.asprog.hotword.navigation.game.data.GameUiState
+import com.asprog.hotword.navigation.game.data.GameViewModel
+import com.asprog.hotword.navigation.game.endGame.EndGameScreen
+import com.asprog.hotword.navigation.game.finishGame.FinishGameScreen
+import com.asprog.hotword.navigation.game.runGame.RunGameScreen
+import com.asprog.hotword.navigation.game.startGame.StartGameScreen
 import com.asprog.hotword.navigation.lobby.LobbyScreen
-import com.asprog.hotword.navigation.lobby.lobbyNavigationAction
-import com.asprog.hotword.ui.theme.HotPotatoTheme
+import com.asprog.hotword.navigation.settings.SettingsScreen
+import com.asprog.hotword.ui.theme.HotWordTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
-    lateinit var navController: NavHostController
+    private lateinit var navController: NavHostController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContent {
-
             navController = rememberNavController()
 
             AppContainer(navController)
@@ -36,20 +44,31 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun AppContainer(navController:NavHostController) {
-    HotPotatoTheme {
+fun AppContainer(navController: NavHostController) {
+    HotWordTheme {
+        val viewModel: GameViewModel = hiltViewModel()
+        val navigation = { rout: NavRouts -> globalNavigationGraph(rout, navController) }
+        val events = { event: GameEvent -> viewModel.onEvent(event) }
 
         NavHost(
             navController = navController,
             startDestination = Screen.LobbyNavGraph.route,
             route = Screen.App.route,
-        ){
-            lobbyNavGraph(navController)
+        ) {
+            lobbyNavGraph(
+                viewModel = viewModel,
+                events = events,
+                navigate = navigation,
+            )
         }
     }
 }
 
-fun NavGraphBuilder.lobbyNavGraph(navController: NavHostController) {
+fun NavGraphBuilder.lobbyNavGraph(
+    viewModel: GameViewModel,
+    events: (GameEvent) -> Unit,
+    navigate: (NavRouts) -> Unit
+) {
     val startDestination = Screen.Lobby.route
 
     navigation(
@@ -57,19 +76,24 @@ fun NavGraphBuilder.lobbyNavGraph(navController: NavHostController) {
         startDestination = startDestination
     ) {
         composable(route = Screen.Lobby.route) {
-            LobbyScreen {navigator ->
-                lobbyNavigationAction(navigator = navigator, navController = navController)
-            }
+            LobbyScreen(navigate = navigate)
         }
-        playNavGraph(navController = navController)
-
+        playNavGraph(
+            viewModel = viewModel,
+            events = events,
+            navigate = navigate,
+        )
         composable(route = Screen.Settings.route) {
-
+            SettingsScreen(navigate = navigate)
         }
     }
 }
 
-fun NavGraphBuilder.playNavGraph(navController: NavHostController) {
+fun NavGraphBuilder.playNavGraph(
+    viewModel: GameViewModel,
+    events: (GameEvent) -> Unit,
+    navigate: (NavRouts) -> Unit
+) {
     val startDestination = Screen.CreateGame.route
 
     navigation(
@@ -77,21 +101,25 @@ fun NavGraphBuilder.playNavGraph(navController: NavHostController) {
         startDestination = startDestination
     ) {
         composable(route = Screen.CreateGame.route) {
-            CreateGameScreen { navigator ->
-                createGameNavigationAction(navigator = navigator, navController = navController)
-            }
+            val uiState by viewModel.uiState.collectAsState()
+
+            CreateGameScreen(
+                uiState = uiState,
+                events = events,
+                navigate = navigate
+            )
         }
         composable(route = Screen.StartGameRound.route) {
-
+            StartGameScreen(navigate = navigate)
         }
         composable(route = Screen.GameRound.route) {
-
+            RunGameScreen(navigate = navigate)
         }
         composable(route = Screen.EndGameRound.route) {
-
+            EndGameScreen(navigate = navigate)
         }
         composable(route = Screen.FinishGame.route) {
-
+            FinishGameScreen(navigate = navigate)
         }
     }
 }
