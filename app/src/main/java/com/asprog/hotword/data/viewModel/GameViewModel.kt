@@ -3,45 +3,24 @@ package com.asprog.hotword.data.viewModel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.asprog.hotword.data.entity.Player
-import com.asprog.hotword.data.interfaces.Event
 import com.asprog.hotword.data.repository.GameRepository
 import com.asprog.hotword.data.sample.Const.TAG
 import com.asprog.hotword.data.sample.Const.second
+import com.asprog.hotword.data.sample.KeyLocalSimpleDataBase.fourLetters
+import com.asprog.hotword.data.sample.KeyLocalSimpleDataBase.threeLetters
+import com.asprog.hotword.data.sample.KeyLocalSimpleDataBase.twoLetters
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
-sealed interface GameEvent : Event {
-    sealed interface CreateScreen : GameEvent {
-        data object Init : CreateScreen
-        data class SetTimeRound(val minTime: Int, val maxTime: Int) : CreateScreen
-        data class SetPersons(val newListPlayers: List<Player>) : CreateScreen
-        data class SetMaxRounds(val maxRounds: Int) : CreateScreen
-    }
-
-    sealed interface StartGame : GameEvent {
-        data object Init : StartGame
-    }
-
-    sealed interface RunGame : GameEvent {
-        data object Init : RunGame
-    }
-
-    sealed interface EndGame : GameEvent {
-        data object Init : EndGame
-    }
-
-    sealed interface FinishGame : GameEvent {
-        data object Init : FinishGame
-    }
-}
+import kotlin.math.max
 
 @HiltViewModel
 class GameViewModel @Inject constructor(
@@ -64,12 +43,15 @@ class GameViewModel @Inject constructor(
                     GameEvent.CreateScreen.Init -> {
                         goCreateGameScreen()
                     }
+
                     is GameEvent.CreateScreen.SetMaxRounds -> {
                         setMaxRounds(event.maxRounds)
                     }
+
                     is GameEvent.CreateScreen.SetPersons -> {
                         setPersons(event.newListPlayers)
                     }
+
                     is GameEvent.CreateScreen.SetTimeRound -> {
                         setTimeRound(Pair(event.minTime, event.maxTime))
                     }
@@ -86,19 +68,43 @@ class GameViewModel @Inject constructor(
 
             is GameEvent.EndGame -> {
                 when (event) {
-                    GameEvent.EndGame.Init -> TODO()
+                    GameEvent.EndGame.Init -> {
+                        _uiState.update {
+                            it.copy(
+                                currentScreenState = GameScreenState.END,
+                                currentRound = (uiState.value.currentRound + 1)
+                            )
+                        }
+                    }
+
+                    is GameEvent.EndGame.LosePlayer -> {
+                        val oldList = uiState.value.players.toMutableList()
+                        val index = oldList.indexOf(event.player)
+                        oldList.removeAt(index)
+                        oldList.add(index, event.player.copy(count = (event.player.count + 1)))
+                        _uiState.update { it.copy(players = oldList) }
+                    }
                 }
             }
 
             is GameEvent.FinishGame -> {
                 when (event) {
-                    GameEvent.FinishGame.Init -> TODO()
+                    GameEvent.FinishGame.Init -> {
+                        _uiState.update {
+                            it.copy(
+                                currentScreenState = GameScreenState.FINISH,
+                                boom = false
+                            )
+                        }
+                    }
                 }
             }
 
             is GameEvent.RunGame -> {
                 when (event) {
-                    GameEvent.RunGame.Init -> TODO()
+                    GameEvent.RunGame.Init -> {
+                        runGameScreen()
+                    }
                 }
             }
         }
@@ -116,26 +122,43 @@ class GameViewModel @Inject constructor(
 
     private fun startGameScreen() {
         //TODO check params
-        _uiState.update { it.copy(currentScreenState = GameScreenState.START) }
+        //TODO исключать слова
+        val l = (fourLetters + threeLetters + twoLetters).random()
+        _uiState.update {
+            it.copy(
+                currentScreenState = GameScreenState.START,
+                boom = false,
+                currentWord = l
+            )
+        }
     }
 
     @OptIn(DelicateCoroutinesApi::class)
     private fun runGameScreen() {
         _uiState.update { it.copy(currentScreenState = GameScreenState.RUN) }
-        GlobalScope.launch(exceptionHandler) {
 
+        GlobalScope.launch(exceptionHandler) {
+            var randomTime =
+                (uiState.value.timeRound.first..uiState.value.timeRound.second).random()
+            _uiState.update { it.copy(currentTimerInit = randomTime, currentTimer = randomTime) }
+            val step = 50L
+            while (randomTime > 0) {
+                delay(step)
+                randomTime -= step
+                _uiState.update { it.copy(currentTimer = max(randomTime, 0L)) }
+            }
+            delay(step)
+            _uiState.update { it.copy(boom = true) }
         }
     }
 
-
     private fun canRestartGame(): Boolean {
-        return uiState.value.currentScreenState != GameScreenState.NOT_INIT
+        return uiState.value.currentScreenState != GameScreenState.NOT_INIT &&
+                uiState.value.currentScreenState != GameScreenState.FINISH
     }
 
     private fun setPersons(listPlayers: List<Player>) {
         _uiState.update { it.copy(players = listPlayers) }
-        Log.d(TAG, "!1: $listPlayers")
-        Log.d(TAG, "!2: " + uiState.value.players.toString())
     }
 
     private fun setTimeRound(timeRound: Pair<Int, Int>) {

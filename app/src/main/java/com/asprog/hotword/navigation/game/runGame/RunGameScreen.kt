@@ -1,58 +1,81 @@
 package com.asprog.hotword.navigation.game.runGame
 
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.asprog.hotword.data.entity.Player
-import com.asprog.hotword.data.sample.PlayerName
+import androidx.compose.ui.zIndex
 import com.asprog.hotword.data.viewModel.GameEvent
 import com.asprog.hotword.data.viewModel.GameUiState
 import com.asprog.hotword.navigation.controller.NavRouts
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RunGameScreen(
     uiState: GameUiState,
     events: (GameEvent) -> Unit,
     navigate: (NavRouts) -> Unit
 ) {
-    val players = remember { mutableStateListOf<Player>() }
+    val context = LocalContext.current
 
-    val addPlayer: () -> Unit = {
-        val id = players.size
-        val name = PlayerName.listNames[id % PlayerName.listNames.size]
-        val player = Player(id, name)
-        players.add(player)
+    val displayMetrics = context.resources.displayMetrics
+
+    val sc = uiState.currentTimer.toDouble() / uiState.currentTimerInit.toDouble()
+
+    val dpWidthPhone =
+        (displayMetrics.widthPixels.toDouble() / displayMetrics.density.toDouble()) * sc
+    val dpHeightPhone =
+        (displayMetrics.heightPixels.toDouble() / displayMetrics.density.toDouble()) * sc
+
+    LaunchedEffect(Unit) {
+        events(GameEvent.RunGame.Init)
     }
 
+    LaunchedEffect(uiState.boom) {
+        if (uiState.boom) {
+            navigate(NavRouts.FromRunGame.ToEndGame)
+        }
+    }
+
+    BackHandler {
+
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = {
-            TopAppBar(title = { Text(text = "Подготвка к игре") })
-        }
     ) { paddings ->
-        Column(
+        Box(
             modifier = Modifier
                 .padding(paddings)
                 .fillMaxSize()
-                .padding(16.dp),
         ) {
-            Text(text = "С кем играем")
-
-            Button(onClick = addPlayer) {
-                Text(text = "Добавить игрока")
+            Column(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .zIndex(5f)
+            ) {
+                Text(
+                    text = uiState.currentWord, color = Color.Black
+                )
             }
+            Box(
+                modifier = Modifier
+                    .size(dpWidthPhone.dp, dpHeightPhone.dp)
+                    .background(Color.Yellow)
+                    .align(Alignment.Center)
+                    .zIndex(4f)
+            )
         }
     }
 }

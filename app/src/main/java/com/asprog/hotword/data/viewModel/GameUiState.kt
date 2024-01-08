@@ -13,13 +13,15 @@ data class GameUiState(
 
     val players: List<Player> = listOf(),
 
-    val currentRound: Int = 0,
+    val currentRound: Int = 1,
     val currentWord: String = "",
-    val currentTimer: Long = 0L,
+    val currentTimerInit: Long = 10000L,
+    val currentTimer: Long = 10000L,
+    val boom: Boolean = false,
 
-    val maxRounds: Int = 10,
+    val maxRounds: Int = 5,
 
-    val timeRound: Pair <Long, Long> = Pair(10 * Const.second, 25 * Const.second),
+    val timeRound: Pair<Long, Long> = Pair(5 * Const.second, 20 * Const.second),
 
     val errorMessage: String = ""
 )
