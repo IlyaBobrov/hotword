@@ -6,9 +6,8 @@ import com.asprog.hotword.data.interfaces.Event
 sealed interface GameEvent : Event {
     sealed interface CreateScreen : GameEvent {
         data object Init : CreateScreen
-        data class SetTimeRound(val minTime: Int, val maxTime: Int) : CreateScreen
         data class SetPersons(val newListPlayers: List<Player>) : CreateScreen
-        data class SetMaxRounds(val maxRounds: Int) : CreateScreen
+        data object ClearGame : CreateScreen
     }
 
     sealed interface StartGame : GameEvent {
@@ -26,5 +25,12 @@ sealed interface GameEvent : Event {
 
     sealed interface FinishGame : GameEvent {
         data object Init : FinishGame
+    }
+
+    sealed interface Settings : GameEvent {
+        data class RoundCountUpdate(val value: Int) : Settings
+        data class MinTimeRoundUpdate(val value: Long) : Settings
+        data class MaxTimeRoundUpdate(val value: Long) : Settings
+        data class ShowTimerUpdate(val value: Boolean) : Settings
     }
 }

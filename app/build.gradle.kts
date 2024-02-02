@@ -52,6 +52,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":tools_kit"))
 
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
@@ -120,7 +121,6 @@ dependencies {
     kapt("com.google.dagger:hilt-android-compiler:$dagger_core_version")
     androidTestImplementation("com.google.dagger:hilt-android-testing:$dagger_core_version")
     kaptAndroidTest("com.google.dagger:hilt-compiler:$dagger_core_version")
-
 
 
     //Security

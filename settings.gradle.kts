@@ -15,4 +15,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "hotword"
 include(":app")
- 
+include(":tools_kit")

@@ -83,7 +83,13 @@ fun NavGraphBuilder.lobbyNavGraph(
             navigate = navigate,
         )
         composable(route = Screen.Settings.route) {
-            SettingsScreen(navigate = navigate)
+            val uiState by viewModel.uiState.collectAsState()
+
+            SettingsScreen(
+                uiState = uiState,
+                events = events,
+                navigate = navigate
+            )
         }
     }
 }
