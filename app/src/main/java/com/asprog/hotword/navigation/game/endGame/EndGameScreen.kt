@@ -1,9 +1,11 @@
 package com.asprog.hotword.navigation.game.endGame
 
 import android.content.res.Configuration
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,6 +26,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.asprog.hotword.data.entity.Player
@@ -31,6 +37,7 @@ import com.asprog.hotword.data.viewModel.GameEvent
 import com.asprog.hotword.data.viewModel.GameUiState
 import com.asprog.hotword.navigation.controller.NavRouts
 import com.asprog.hotword.ui.theme.HotWordTheme
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,6 +48,13 @@ fun EndGameScreen(
 ) {
     val players = uiState.players
 
+    var boomScreen by remember { mutableStateOf(true) }
+
+    LaunchedEffect(Unit) {
+        boomScreen = true
+    }
+
+
     var losePlayer by remember { mutableStateOf<Player?>(null) }
 
     val playerLose: (Player) -> Unit = { player ->
@@ -48,9 +62,27 @@ fun EndGameScreen(
     }
 
     val isLastRound = uiState.currentRound > uiState.maxRounds
+    val haptic = LocalHapticFeedback.current
 
     LaunchedEffect(Unit) {
         events(GameEvent.EndGame.Init)
+        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+        delay(50)
+        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+        delay(50)
+        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+        delay(50)
+        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+        delay(50)
+        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+        delay(50)
+        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+        delay(50)
+        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+        delay(50)
+        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+        delay(50)
+        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
     }
 
     val nextButtonAction: () -> Unit = {
@@ -66,34 +98,56 @@ fun EndGameScreen(
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
-            TopAppBar(title = { Text(text = "БУМ!") })
+            TopAppBar(title = { Text(text = "BOOOM!") })
         }
     ) { paddings ->
-        Column(
-            modifier = Modifier
-                .padding(paddings)
-                .fillMaxSize()
-                .padding(0.dp),
-        ) {
-            Text(
-                text = "Упс, кто то взлетел на воздух",
-                modifier = Modifier
-                    .padding(16.dp)
-            )
-
-            players.forEach { playerData ->
-                ItemPlayer(playerData = playerData, losePlayer = losePlayer) {
-                    playerLose(playerData)
+        Crossfade(targetState = boomScreen, label = "boom") { b ->
+            if (b) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.onError)
+                ) {
+                    Text(
+                        text = "BOOOM!",
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.headlineLarge.merge(TextStyle(fontWeight = FontWeight.Bold)),
+                        modifier = Modifier.align(Alignment.Center)
+                    )
                 }
-            }
+                LaunchedEffect(Unit) {
+                    delay(1000)
+                    boomScreen = false
+                }
+            } else {
+                Column(
+                    modifier = Modifier
+                        .padding(paddings)
+                        .fillMaxSize()
+                        .padding(0.dp),
+                ) {
+                    Text(
+                        text = "Упс, кто то взлетел на воздух",
+                        modifier = Modifier
+                            .padding(16.dp)
+                    )
 
-            Button(
-                onClick = nextButtonAction,
-                enabled = losePlayer != null,
-                modifier = Modifier
-                    .padding(16.dp)
-            ) {
-                Text(text = if (isLastRound) "Итоги игры" else "Следующий раунд")
+                    players.forEach { playerData ->
+                        ItemPlayer(playerData = playerData, losePlayer = losePlayer) {
+                            playerLose(playerData)
+                        }
+                    }
+
+                    Button(
+                        onClick = nextButtonAction,
+                        enabled = losePlayer != null,
+                        modifier = Modifier
+                            .padding(16.dp)
+                    ) {
+                        Text(text = if (isLastRound) "Итоги игры" else "Следующий раунд")
+                    }
+                }
+
             }
         }
     }
