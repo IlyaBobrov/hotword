@@ -1,5 +1,6 @@
 package com.asprog.hotword.navigation.game.endGame
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -23,12 +24,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.asprog.hotword.data.entity.Player
 import com.asprog.hotword.data.viewModel.GameEvent
 import com.asprog.hotword.data.viewModel.GameUiState
 import com.asprog.hotword.navigation.controller.NavRouts
+import com.asprog.hotword.ui.theme.HotWordTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -109,12 +111,22 @@ private fun ItemPlayer(
             .height(56.dp)
             .fillMaxWidth()
             .clickable { clickAction() }
-            .background(if (playerData == losePlayer) Color.Yellow else MaterialTheme.colorScheme.onPrimary)
+            .background(if (playerData == losePlayer) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.secondaryContainer)
             .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(text = playerData.name)
         Text(text = if (playerData == losePlayer) (playerData.count + 1).toString() else playerData.count.toString())
+    }
+}
+
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun SBlockChangePreview() {
+    HotWordTheme {
+        ItemPlayer(Player(1), Player(1)) {}
     }
 }

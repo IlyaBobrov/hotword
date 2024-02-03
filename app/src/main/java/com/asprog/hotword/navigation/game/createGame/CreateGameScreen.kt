@@ -88,13 +88,12 @@ fun CreateGameScreen(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
-                title = { Text(text = "Подготвка к игре") },
+                title = { Text(text = "Подготовка к игре") },
                 navigationIcon = { IconButtonNavigateBack(toLobby) },
                 actions = {
                     IconButton(onClick = settingsGame) {
                         Icon(
                             imageVector = Icons.Default.Settings,
-                            tint = MaterialTheme.colorScheme.onPrimary,
                             contentDescription = "Settings"
                         )
                     }
@@ -119,7 +118,6 @@ fun CreateGameScreen(
                     Text(
                         text = "Нажмите кнопку \"Добавить игрока\"",
                         style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.inverseOnSurface
                     )
                 } else {
                     players.forEach { player ->
