@@ -176,13 +176,17 @@ fun ItemPlayer(
     ) {
         Text(text = playerData.name)
         IconButton(onClick = { removeAction() }) {
-            Icon(imageVector = Icons.Default.Close, contentDescription = "Удалить")
+            Icon(
+                imageVector = Icons.Default.Close,
+                contentDescription = "Удалить ${playerData.name}"
+            )
         }
     }
 }
 
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
 @Composable
 fun SBlockChangePreview() {
     HotWordTheme {
